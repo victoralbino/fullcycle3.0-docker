@@ -1,0 +1,42 @@
+version: '3'
+
+services:
+  nodeserver:
+    image: "node:alpine"
+    working_dir: /home/node/app
+    volumes:
+      - ./src/:/home/node/app
+    expose:
+      - "5000"
+    command: "npm start"
+    networks:
+      - fullcycle-network
+    depends_on:
+      - db
+  nginx:
+    restart: always
+    build: 
+      context: ./docker/nginx
+    ports:
+      - "8080:80"
+    networks:
+      - fullcycle-network
+    depends_on:
+      - db
+  db:
+    image: mysql
+    command: --default-authentication-plugin=mysql_native_password
+    container_name: fullcycledb
+    restart: always
+    # volumes:
+      # - ./docker/mysql:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: fullcycledb
+    networks:
+      - fullcycle-network
+
+
+networks:
+  fullcycle-network:
+    driver: bridge
