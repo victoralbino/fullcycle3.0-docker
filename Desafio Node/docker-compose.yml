@@ -2,15 +2,14 @@ version: '3'
 
 services:
   nodeserver:
-    image: "node:alpine"
-    working_dir: /home/node/app
-    volumes:
-      - ./src/:/home/node/app
-    expose:
-      - "5000"
-    command: "npm start"
+    build: 
+      context: ./src
+    entrypoint: dockerize -wait tcp://db:3306 -timeout 20s bash -c "cd src && npm install && npm start"
     networks:
       - fullcycle-network
+    volumes: 
+      - ./:/home/node/app
+    tty: true
     depends_on:
       - db
   nginx:
